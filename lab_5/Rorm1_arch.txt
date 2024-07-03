@@ -1,0 +1,228 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.IO;
+
+
+namespace lab_5
+{
+    public partial class Form1 : Form
+    {
+        private int AX=2, BX=3, CX, DX;
+        private byte AL, BL, CL, DL;
+        private byte AH, BH, CH, DH;
+        private string str = "222";
+
+        private string line;
+        private string first_word;
+        private string second_word;
+        private string third_word;
+        private int line_number = 0;
+        private int line_count = 0;
+        private string file_path = "code.txt";
+
+        private void save_button_Click(object sender, EventArgs e)
+        {
+            string textToSave = code_textbox.Text;
+            
+            File.WriteAllText(file_path, textToSave);
+            MessageBox.Show("Text saved to file successfully.");
+
+
+        }
+
+        private void load_button_Click(object sender, EventArgs e)
+        {
+            code_textbox.Text = File.ReadAllText(file_path);
+        }
+
+        
+
+
+
+        private void execute_button_Click(object sender, EventArgs e)
+        {
+            line_number = 0;
+             line_count = code_textbox.Lines.Length;
+            MessageBox.Show((line_count.ToString()));
+
+            for (int i = 0; i<line_count;i++)
+            {
+                read_code();
+            }
+        }
+
+
+        private void step_button_Click(object sender, EventArgs e)
+        {
+            read_code();
+        }
+
+        void read_code()
+        {
+            line = code_textbox.Lines[line_number];
+            label_AX.Text = line;
+            string[] words = line.Split(new char[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
+
+            string first_word = words[0];
+            string second_word = string.Empty;
+            string third_word = string.Empty;
+
+            if (words[1].EndsWith(","))
+            {
+                second_word = words[1].TrimEnd(',');
+                third_word = words[2];
+            }
+            else if (words[1].EndsWith(",") && words[2].StartsWith(","))
+            {
+                second_word = words[1].TrimEnd(',');
+                third_word = words[2].TrimStart(',');
+            }
+            else if (words.Length >= 4 && words[2].StartsWith(","))
+            {
+                second_word = words[1];
+                third_word = words[3];
+            }
+            else if (words.Length >= 4 && words[2] == ",")
+            {
+                second_word = words[1];
+                third_word = words[3];
+            }
+            else
+            {
+                MessageBox.Show("The second word must be followed by a comma before the third word.");
+                return;
+            }
+
+
+
+
+
+            label_AX.Text = first_word;
+            label_BX.Text = second_word;
+            label_CX.Text = third_word;
+
+
+
+            if (second_word == "AX")
+            {
+                AX = Wynik(first_word, second_word, third_word);
+            }
+            else if (second_word == "BX")
+            {
+                BX = Wynik(first_word, second_word, third_word);
+            }
+            else if (second_word == "CX")
+            {
+                CX = Wynik(first_word, second_word, third_word);
+            }
+            else if (second_word == "DX")
+            {
+                DX = Wynik(first_word, second_word, third_word);
+            }
+
+            label_AX.Text = AX.ToString();
+            label_BX.Text = BX.ToString();
+            label_CX.Text = CX.ToString();
+            label_DX.Text = DX.ToString();
+
+            line_number++;
+        }
+
+        int Wynik(string n1, string n2, string n3)
+        {
+            int number = 0;
+            if(n2=="AX")
+            {
+                number = AX;
+            }
+            else if (n2=="BX")
+            {
+                number = BX;
+            }
+            else if (n2 == "CX")
+            {
+                number = CX;
+            }
+            else if (n2 == "DX")
+            {
+                number = DX;
+            }
+
+            if (n1=="add" || n1=="sub" ||  n1=="mov")
+            {
+                if (n1=="add")
+                {
+                    int a = Zmienna(n3);
+                    //MessageBox.Show((a.ToString()));
+
+                    return number + Zmienna(n3);
+                }
+                else if (n1 == "sub")
+                {
+                    return number - Zmienna(n3);
+                }
+                else if (n1 == "mov")
+                {
+                    return Zmienna(n3);
+                }
+
+            }
+            return 0;
+        }
+
+        int Zmienna(string n3)
+        {
+            //MessageBox.Show(("zmienna"));
+
+            int number =0;
+
+            if (int.TryParse(n3, out _))
+            {
+
+                number = int.Parse(n3);
+                //MessageBox.Show((number.ToString()));
+            }
+            else if(n3 == "AX" || n3 == "BX" || n3 == "CX" || n3 == "DX")
+            {
+                if(n3=="AX")
+                {
+                    number = AX;
+                }
+                else if (n3 == "BX")
+                {
+                    number = BX;
+                }
+                else if (n3 == "CX")
+                {
+                    number = CX;
+                }
+                else if (n3 == "DX")
+                {
+                    number = DX;
+                }
+            }
+            return number;
+        }
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            label_AX.Text = AX.ToString();
+            label_BX.Text = BX.ToString();
+            label_CX.Text = CX.ToString();
+            label_DX.Text = DX.ToString();
+
+        }
+    }
+}
